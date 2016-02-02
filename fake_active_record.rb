@@ -83,7 +83,7 @@ module FakeActiveRecord
         array_or_hash.each do |k,v|
           raise ArgumentError unless self.columns.include?(k)
           column_arr << k
-          value_arr << v
+          value_arr << "'#{v}'"
         end
         DB.execute("INSERT INTO #{self.table_name} (#{column_arr.join(',')}) VALUES (#{value_arr.join(',')}) ")
 
