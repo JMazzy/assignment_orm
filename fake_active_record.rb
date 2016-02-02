@@ -67,12 +67,17 @@ module FakeActiveRecord
     end
 
     def self.where(hash)
-      query_arr = []
+      # query_arr = []
       hash.each do |k,v|
         raise ArgumentError unless self.columns.include?(k)
-        query_arr << "#{k} = '#{v}'"
+        # query_arr << "#{k} = '#{v}'"
+        query_str = "SELECT * FROM #{self.table_name} WHERE "
+        prepared = prepare(k, query_str).bind_param(1,v)
+        finished = prepared.execute
+        row = finished.next
+        puts row.join("\s")
       end
-      DB.execute("SELECT * FROM #{self.table_name} WHERE " + query_arr.join(" AND "))
+
     end
 
     def self.create(array_or_hash)
@@ -99,6 +104,12 @@ module FakeActiveRecord
           DB.execute("INSERT INTO #{self.table_name} (#{column_arr.join(',')}) VALUES (#{value_arr.join(',')}) ")
         end
       end
+    end
+
+    private
+
+    def self.prepare(column, query_str)
+      DB.prepare(query_str + "#{column} = ?")
     end
 
   end
